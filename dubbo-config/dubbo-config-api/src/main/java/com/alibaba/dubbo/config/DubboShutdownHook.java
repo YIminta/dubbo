@@ -60,14 +60,17 @@ public class DubboShutdownHook extends Thread {
 
     /**
      * Destroy all the resources, including registries and protocols.
+     * 这个方法是为了在应用关闭或系统资源清理时调用，确保服务治理相关的组件（registries和protocols）被安全地清理，释放占用的资源。
      */
     public void destroyAll() {
+        //使用原子操作检查并设置destroyed变量的值。如果当前值为false（未销毁状态），则将其设置为true（销毁状态）。如果已经为true，表示已经执行过销毁操作，所以直接返回，避免重复执行
         if (!destroyed.compareAndSet(false, true)) {
             return;
         }
         // destroy all the registries
+        // 清理所有的注册中心实例。注册中心通常用于服务发现和服务注册，这一步确保它们被正确关闭。
         AbstractRegistryFactory.destroyAll();
-        // destroy all the protocols
+        // destroy all the protocols 获取并销毁所有协议
         ExtensionLoader<Protocol> loader = ExtensionLoader.getExtensionLoader(Protocol.class);
         for (String protocolName : loader.getLoadedExtensions()) {
             try {
