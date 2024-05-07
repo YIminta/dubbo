@@ -68,8 +68,6 @@ public abstract class AbstractConfig implements Serializable {
      * key：新版本的配置 映射
      * value：旧版本的配置 映射
      *
-     * 来自 2012/3/8 下午 5：51 cb1f705 提交
-     * DUBBO-251 增加API覆盖dubbo.properties的测试，以及旧版本配置项测试。
      */
     private static final Map<String, String> legacyProperties = new HashMap<String, String>();
 
