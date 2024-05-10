@@ -39,15 +39,16 @@ public class DubboConfigConfigurationRegistrar implements ImportBeanDefinitionRe
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-
+        // 获得 @EnableDubboConfig 注解的属性
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(
                 importingClassMetadata.getAnnotationAttributes(EnableDubboConfig.class.getName()));
-
+        // 获得 multiple 属性
         boolean multiple = attributes.getBoolean("multiple");
 
         // Single Config Bindings
+        // 默认注册 DubboConfigConfiguration.Single Bean 对象
         registerBeans(registry, DubboConfigConfiguration.Single.class);
-
+        // 如果 mutiple 为 true 则注册 DubboConfigConfiguration.Multiple Bean 对象
         if (multiple) { // Since 2.6.6 https://github.com/apache/incubator-dubbo/issues/3193
             registerBeans(registry, DubboConfigConfiguration.Multiple.class);
         }

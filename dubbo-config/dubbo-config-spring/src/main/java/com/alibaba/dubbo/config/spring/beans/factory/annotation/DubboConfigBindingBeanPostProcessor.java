@@ -53,6 +53,7 @@ public class DubboConfigBindingBeanPostProcessor implements BeanPostProcessor, A
     private final Log log = LogFactory.getLog(getClass());
 
     /**
+     * 配置属性的前缀
      * The prefix of Configuration Properties
      */
     private final String prefix;
@@ -81,11 +82,11 @@ public class DubboConfigBindingBeanPostProcessor implements BeanPostProcessor, A
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-
+        // 判断必须是 beanName ，并且是 AbstractConfig 类型
         if (beanName.equals(this.beanName) && bean instanceof AbstractConfig) {
 
             AbstractConfig dubboConfig = (AbstractConfig) bean;
-
+            // 设置属性到 dubboConfig 中
             bind(prefix, dubboConfig);
 
             customize(beanName, dubboConfig);
@@ -139,7 +140,7 @@ public class DubboConfigBindingBeanPostProcessor implements BeanPostProcessor, A
     }
 
     private void initDubboConfigBinder() {
-
+        // 获得（创建）DubboConfigBinder 对象
         if (dubboConfigBinder == null) {
             try {
                 dubboConfigBinder = applicationContext.getBean(DubboConfigBinder.class);
@@ -171,9 +172,11 @@ public class DubboConfigBindingBeanPostProcessor implements BeanPostProcessor, A
      * @return {@link DefaultDubboConfigBinder}
      */
     protected DubboConfigBinder createDubboConfigBinder(Environment environment) {
+        // 创建 DefaultDubboConfigBinder 对象
         DefaultDubboConfigBinder defaultDubboConfigBinder = new DefaultDubboConfigBinder();
+        // 设置 environment 属性
         defaultDubboConfigBinder.setEnvironment(environment);
-
+        // 设置 ignoreUnknownFields、ignoreInvalidFields 属性
         defaultDubboConfigBinder.setIgnoreUnknownFields(true);
         defaultDubboConfigBinder.setIgnoreInvalidFields(true);
 
