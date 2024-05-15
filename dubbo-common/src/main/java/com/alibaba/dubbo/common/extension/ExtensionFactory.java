@@ -28,6 +28,12 @@ public interface ExtensionFactory {
      * @param type object type.
      * @param name object name.
      * @return object instance.
+     *
+     * 获得拓展对象
+     *
+     * @param type object type. 拓展接口
+     * @param name object name. 拓展名
+     * @return object instance. 拓展对象
      */
     <T> T getExtension(Class<T> type, String name);
 
