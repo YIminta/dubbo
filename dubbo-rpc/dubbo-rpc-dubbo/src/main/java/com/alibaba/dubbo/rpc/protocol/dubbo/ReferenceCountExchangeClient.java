@@ -31,20 +31,32 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * dubbo protocol support class.
+ *
+ * 支持指向计数的信息交换客户端实现类
  */
 @SuppressWarnings("deprecation")
 final class ReferenceCountExchangeClient implements ExchangeClient {
 
     private final URL url;
+    /**
+     * 指向数量
+     */
     private final AtomicInteger refenceCount = new AtomicInteger(0);
 
     //    private final ExchangeHandler handler;
+    /**
+     * 幽灵客户端集合
+     */
     private final ConcurrentMap<String, LazyConnectExchangeClient> ghostClientMap;
+    /**
+     * 客户端
+     */
     private ExchangeClient client;
 
 
     public ReferenceCountExchangeClient(ExchangeClient client, ConcurrentMap<String, LazyConnectExchangeClient> ghostClientMap) {
         this.client = client;
+        // 指向加一
         refenceCount.incrementAndGet();
         this.url = client.getUrl();
         if (ghostClientMap == null) {
@@ -148,12 +160,14 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
 
     @Override
     public void close(int timeout) {
+        // 防止client被关闭多次. 在 connect per jvm 的情况下，client.close 方法会调用计数器-1，当计数器小于等于0的情况下，才真正关闭
         if (refenceCount.decrementAndGet() <= 0) {
             if (timeout == 0) {
                 client.close();
             } else {
                 client.close(timeout);
             }
+            // 替换 `client` 为 LazyConnectExchangeClient 对象。
             client = replaceWithLazyClient();
         }
     }
@@ -173,6 +187,7 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
 
         String key = url.getAddress();
         // in worst case there's only one ghost connection.
+        // 创建 LazyConnectExchangeClient 对象，若不存在。
         LazyConnectExchangeClient gclient = ghostClientMap.get(key);
         if (gclient == null || gclient.isClosed()) {
             gclient = new LazyConnectExchangeClient(lazyUrl, client.getExchangeHandler());
@@ -185,7 +200,9 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
     public boolean isClosed() {
         return client.isClosed();
     }
-
+    /**
+     * 增加计数
+     */
     public void incrementAndGetCount() {
         refenceCount.incrementAndGet();
     }
