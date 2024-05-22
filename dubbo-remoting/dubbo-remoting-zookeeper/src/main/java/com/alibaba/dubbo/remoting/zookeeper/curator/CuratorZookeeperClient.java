@@ -45,15 +45,17 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         super(url);
         try {
             int timeout = url.getParameter(Constants.TIMEOUT_KEY, 5000);
+            // 创建 client 对象
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                    .connectString(url.getBackupAddress())
-                    .retryPolicy(new RetryNTimes(1, 1000))
-                    .connectionTimeoutMs(timeout);
+                    .connectString(url.getBackupAddress())// 连接地址
+                    .retryPolicy(new RetryNTimes(1, 1000))// 重试策略，1 次，间隔 1000 ms
+                    .connectionTimeoutMs(timeout);// 连接超时时间
             String authority = url.getAuthority();
             if (authority != null && authority.length() > 0) {
                 builder = builder.authorization("digest", authority.getBytes());
             }
             client = builder.build();
+            // 添加连接监听器
             client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
                 @Override
                 public void stateChanged(CuratorFramework client, ConnectionState state) {
@@ -66,6 +68,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
                     }
                 }
             });
+            // 启动 client
             client.start();
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
