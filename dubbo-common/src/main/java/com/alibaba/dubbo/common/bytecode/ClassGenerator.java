@@ -45,19 +45,55 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * ClassGenerator
+ *
+ * 类生成器，基于 Javassist 实现。
  */
 public final class ClassGenerator {
     private static final AtomicLong CLASS_NAME_COUNTER = new AtomicLong(0);
     private static final String SIMPLE_NAME_TAG = "<init>";
     private static final Map<ClassLoader, ClassPool> POOL_MAP = new ConcurrentHashMap<ClassLoader, ClassPool>(); //ClassLoader - ClassPool
+    /**
+     * CtClass hash 集合
+     * key：类名
+     */
     private ClassPool mPool;
+    /**
+     * CtClass 对象
+     *
+     * 使用 {@link #mPool} 生成
+     */
     private CtClass mCtc;
-    private String mClassName, mSuperClass;
+    /**
+     * 生成类的类名
+     */
+    private String mClassName;
+    /**
+     * 生成类的父类
+     */
+    private String mSuperClass;
+    /**
+     * 生成类的接口集合
+     */
     private Set<String> mInterfaces;
-    private List<String> mFields, mConstructors, mMethods;
+    /**
+     * 生成类的属性集合
+     */
+    private List<String> mFields;
+    /**
+     * 生成类的非空构造方法代码集合
+     */
+    private List<String> mConstructors;
+    /**
+     * 生成类的方法代码集合
+     */
+    private List<String> mMethods;
     private Map<String, Method> mCopyMethods; // <method desc,method instance>
     private Map<String, Constructor<?>> mCopyConstructors; // <constructor desc,constructor instance>
+    /**
+     * 默认空构造方法
+     */
     private boolean mDefaultConstructor = false;
+
 
     private ClassGenerator() {
     }
