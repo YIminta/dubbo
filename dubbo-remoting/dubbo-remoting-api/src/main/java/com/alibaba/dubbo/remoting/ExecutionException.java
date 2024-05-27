@@ -60,7 +60,9 @@ public class ExecutionException extends RemotingException {
         this.request = request;
     }
 
-
+    /**
+     * 请求
+     */
     public Object getRequest() {
         return request;
     }
