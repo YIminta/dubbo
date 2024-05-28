@@ -40,11 +40,15 @@ public class WrappedChannelHandler implements ChannelHandlerDelegate {
     protected static final Logger logger = LoggerFactory.getLogger(WrappedChannelHandler.class);
 
     protected static final ExecutorService SHARED_EXECUTOR = Executors.newCachedThreadPool(new NamedThreadFactory("DubboSharedHandler", true));
-
+    /**
+     * 线程池
+     */
     protected final ExecutorService executor;
-
+    /**
+     * 通道处理器
+     */
     protected final ChannelHandler handler;
-
+    // URL
     protected final URL url;
 
     protected DataStore dataStore = ExtensionLoader.getExtensionLoader(DataStore.class).getDefaultExtension();
@@ -52,7 +56,7 @@ public class WrappedChannelHandler implements ChannelHandlerDelegate {
     public WrappedChannelHandler(ChannelHandler handler, URL url) {
         this.handler = handler;
         this.url = url;
-
+        // 创建线程池
         String componentKey;
         if (Constants.CONSUMER_SIDE.equalsIgnoreCase(url.getParameter(Constants.SIDE_KEY))) {
             componentKey = Constants.CONSUMER_SIDE;

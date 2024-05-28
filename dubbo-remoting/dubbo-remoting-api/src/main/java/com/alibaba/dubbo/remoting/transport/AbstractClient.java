@@ -151,9 +151,18 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         }
     }
 
+    /**
+     * 包装通道处理器
+     * @param url URL
+     * @param handler 被包装的通道处理器
+     * @return 包装后的通道处理器
+     */
     protected static ChannelHandler wrapChannelHandler(URL url, ChannelHandler handler) {
+        // 设置线程名
         url = ExecutorUtil.setThreadName(url, CLIENT_THREAD_POOL_NAME);
+        // 设置使用的线程池类型
         url = url.addParameterIfAbsent(Constants.THREADPOOL_KEY, Constants.DEFAULT_CLIENT_THREADPOOL);
+        // 包装通道处理器
         return ChannelHandlers.wrap(handler, url);
     }
 
@@ -302,9 +311,11 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
 
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
+        // 未连接时，开启重连功能，则先发起连接
         if (send_reconnect && !isConnected()) {
             connect();
         }
+        // 发送消息
         Channel channel = getChannel();
         //TODO Can the value returned by getChannel() be null? need improvement.
         if (channel == null || !channel.isConnected()) {
@@ -313,6 +324,10 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         channel.send(message, sent);
     }
 
+    /**
+     * 重连
+     * @throws RemotingException error
+     */
     protected void connect() throws RemotingException {
         // 获得锁
         connectLock.lock();
@@ -354,6 +369,9 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         }
     }
 
+    /**
+     * 断开连接
+     */
     public void disconnect() {
         connectLock.lock();
         try {
@@ -376,12 +394,19 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         }
     }
 
+    /**
+     * 主动重连
+     * @throws RemotingException
+     */
     @Override
     public void reconnect() throws RemotingException {
         disconnect();
         connect();
     }
 
+    /**
+     * 强制关闭
+     */
     @Override
     public void close() {
         try {
@@ -408,6 +433,10 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         }
     }
 
+    /**
+     * 优雅关闭
+     * @param timeout 超时时间
+     */
     @Override
     public void close(int timeout) {
         ExecutorUtil.gracefulShutdown(executor, timeout);
