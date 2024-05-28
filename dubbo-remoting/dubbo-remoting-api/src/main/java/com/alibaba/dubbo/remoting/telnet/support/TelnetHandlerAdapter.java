@@ -25,31 +25,37 @@ import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.telnet.TelnetHandler;
 import com.alibaba.dubbo.remoting.transport.ChannelHandlerAdapter;
 
+/**
+ * 负责接收来自 HeaderExchangeHandler 的 telnet 命令，分发给对应的 TelnetHandler 实现类，进行处理，返回命令结果
+ */
 public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements TelnetHandler {
 
     private final ExtensionLoader<TelnetHandler> extensionLoader = ExtensionLoader.getExtensionLoader(TelnetHandler.class);
 
     @Override
     public String telnet(Channel channel, String message) throws RemotingException {
+        // 处理 telnet 提示键
         String prompt = channel.getUrl().getParameterAndDecoded(Constants.PROMPT_KEY, Constants.DEFAULT_PROMPT);
         boolean noprompt = message.contains("--no-prompt");
         message = message.replace("--no-prompt", "");
+        // 拆出 telnet 命令和参数
         StringBuilder buf = new StringBuilder();
         message = message.trim();
-        String command;
+        String command; // 命令
         if (message.length() > 0) {
             int i = message.indexOf(' ');
             if (i > 0) {
-                command = message.substring(0, i).trim();
-                message = message.substring(i + 1).trim();
+                command = message.substring(0, i).trim();// 命令
+                message = message.substring(i + 1).trim();// 参数
             } else {
-                command = message;
-                message = "";
+                command = message;// 命令
+                message = "";// 参数
             }
         } else {
-            command = "";
+            command = "";// 命令
         }
         if (command.length() > 0) {
+            // 查找到对应的 TelnetHandler 对象，执行命令
             if (extensionLoader.hasExtension(command)) {
                 if (commandEnabled(channel.getUrl(), command)) {
                     try {
@@ -67,16 +73,19 @@ public class TelnetHandlerAdapter extends ChannelHandlerAdapter implements Telne
                     buf.append(" disabled");
                 }
             } else {
+                // 查找不到对应的 TelnetHandler 对象，返回报错。
                 buf.append("Unsupported command: ");
                 buf.append(command);
             }
         }
+        // 添加 telnet 提示语
         if (buf.length() > 0) {
             buf.append("\r\n");
         }
         if (prompt != null && prompt.length() > 0 && !noprompt) {
             buf.append(prompt);
         }
+        // 返回
         return buf.toString();
     }
 
