@@ -18,27 +18,35 @@
 package com.alibaba.dubbo.remoting.buffer;
 
 import java.nio.ByteBuffer;
-
+/**
+ * Buffer 工具类
+ */
 public final class ChannelBuffers {
 
     public static final ChannelBuffer EMPTY_BUFFER = new HeapChannelBuffer(0);
 
     private ChannelBuffers() {
     }
-
+    /**
+     * DynamicChannelBuffer ，实际是 HeapChannelBuffer
+     */
     public static ChannelBuffer dynamicBuffer() {
         return dynamicBuffer(256);
     }
-
+    /**
+     * DynamicChannelBuffer ，实际是 HeapChannelBuffer
+     */
     public static ChannelBuffer dynamicBuffer(int capacity) {
         return new DynamicChannelBuffer(capacity);
     }
-
+    /**
+     * DynamicChannelBuffer ，实际是 HeapChannelBuffer
+     */
     public static ChannelBuffer dynamicBuffer(int capacity,
                                               ChannelBufferFactory factory) {
         return new DynamicChannelBuffer(capacity, factory);
     }
-
+    // HeapChannelBuffer
     public static ChannelBuffer buffer(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity can not be negative");
@@ -48,7 +56,7 @@ public final class ChannelBuffers {
         }
         return new HeapChannelBuffer(capacity);
     }
-
+    // HeapChannelBuffer
     public static ChannelBuffer wrappedBuffer(byte[] array, int offset, int length) {
         if (array == null) {
             throw new NullPointerException("array == null");
@@ -57,7 +65,7 @@ public final class ChannelBuffers {
         System.arraycopy(array, offset, dest, 0, length);
         return wrappedBuffer(dest);
     }
-
+    // HeapChannelBuffer
     public static ChannelBuffer wrappedBuffer(byte[] array) {
         if (array == null) {
             throw new NullPointerException("array == null");
@@ -67,7 +75,7 @@ public final class ChannelBuffers {
         }
         return new HeapChannelBuffer(array);
     }
-
+    // HeapChannelBuffer || ByteBufferBackedChannelBuffer
     public static ChannelBuffer wrappedBuffer(ByteBuffer buffer) {
         if (!buffer.hasRemaining()) {
             return EMPTY_BUFFER;
@@ -78,7 +86,7 @@ public final class ChannelBuffers {
             return new ByteBufferBackedChannelBuffer(buffer);
         }
     }
-
+    // ByteBufferBackedChannelBuffer
     public static ChannelBuffer directBuffer(int capacity) {
         if (capacity == 0) {
             return EMPTY_BUFFER;
