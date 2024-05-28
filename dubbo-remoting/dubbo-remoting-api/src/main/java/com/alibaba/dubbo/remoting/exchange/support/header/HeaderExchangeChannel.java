@@ -41,9 +41,13 @@ final class HeaderExchangeChannel implements ExchangeChannel {
     private static final Logger logger = LoggerFactory.getLogger(HeaderExchangeChannel.class);
 
     private static final String CHANNEL_KEY = HeaderExchangeChannel.class.getName() + ".CHANNEL";
-
+    /**
+     * 通道
+     */
     private final Channel channel;
-
+    /**
+     * 是否关闭
+     */
     private volatile boolean closed = false;
 
     HeaderExchangeChannel(Channel channel) {
@@ -60,7 +64,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         HeaderExchangeChannel ret = (HeaderExchangeChannel) ch.getAttribute(CHANNEL_KEY);
         if (ret == null) {
             ret = new HeaderExchangeChannel(ch);
-            if (ch.isConnected()) {
+            if (ch.isConnected()) {// 已连接
                 ch.setAttribute(CHANNEL_KEY, ret);
             }
         }
@@ -68,7 +72,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
     }
 
     static void removeChannelIfDisconnected(Channel ch) {
-        if (ch != null && !ch.isConnected()) {
+        if (ch != null && !ch.isConnected()) {// 未连接
             ch.removeAttribute(CHANNEL_KEY);
         }
     }
@@ -106,18 +110,21 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         if (closed) {
             throw new RemotingException(this.getLocalAddress(), null, "Failed to send request " + request + ", cause: The channel " + this + " is closed!");
         }
-        // create request.
+        // create request. 创建请求
         Request req = new Request();
         req.setVersion(Version.getProtocolVersion());
-        req.setTwoWay(true);
+        req.setTwoWay(true);// 需要响应
         req.setData(request);
+        // 创建 DefaultFuture 对象
         DefaultFuture future = new DefaultFuture(channel, req, timeout);
         try {
+            // 发送请求
             channel.send(req);
-        } catch (RemotingException e) {
+        } catch (RemotingException e) {// 发生异常，取消 DefaultFuture
             future.cancel();
             throw e;
         }
+        // 返回 DefaultFuture 对象
         return future;
     }
 
@@ -142,6 +149,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
             return;
         }
         closed = true;
+        // 等待请求完成
         if (timeout > 0) {
             long start = System.currentTimeMillis();
             while (DefaultFuture.hasFuture(channel)
