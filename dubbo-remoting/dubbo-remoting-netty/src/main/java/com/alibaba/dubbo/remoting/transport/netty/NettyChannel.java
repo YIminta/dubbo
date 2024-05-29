@@ -37,11 +37,17 @@ import java.util.concurrent.ConcurrentMap;
 final class NettyChannel extends AbstractChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyChannel.class);
-
+    /**
+     * 通道集合
+     */
     private static final ConcurrentMap<org.jboss.netty.channel.Channel, NettyChannel> channelMap = new ConcurrentHashMap<org.jboss.netty.channel.Channel, NettyChannel>();
-
+    /**
+     * 通道
+     */
     private final org.jboss.netty.channel.Channel channel;
-
+    /**
+     * 属性集合
+     */
     private final Map<String, Object> attributes = new ConcurrentHashMap<String, Object>();
 
     private NettyChannel(org.jboss.netty.channel.Channel channel, URL url, ChannelHandler handler) {
@@ -51,7 +57,14 @@ final class NettyChannel extends AbstractChannel {
         }
         this.channel = channel;
     }
-
+    /**
+     * 创建 NettyChannel 对象
+     *
+     * @param ch 通道
+     * @param url URL
+     * @param handler 处理器
+     * @return NettyChannel 对象
+     */
     static NettyChannel getOrAddChannel(org.jboss.netty.channel.Channel ch, URL url, ChannelHandler handler) {
         if (ch == null) {
             return null;
@@ -68,9 +81,13 @@ final class NettyChannel extends AbstractChannel {
         }
         return ret;
     }
-
+    /**
+     * 移除 NettyChannel 对象
+     *
+     * @param ch 通道
+     */
     static void removeChannelIfDisconnected(org.jboss.netty.channel.Channel ch) {
-        if (ch != null && !ch.isConnected()) {
+        if (ch != null && !ch.isConnected()) {// 未连接
             channelMap.remove(ch);
         }
     }
@@ -92,16 +109,20 @@ final class NettyChannel extends AbstractChannel {
 
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
+        // 检查连接状态
         super.send(message, sent);
 
         boolean success = true;
         int timeout = 0;
         try {
+            // 发送消息
             ChannelFuture future = channel.write(message);
+            // 等待发送成功
             if (sent) {
                 timeout = getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
                 success = future.await(timeout);
             }
+            // 若发生异常，抛出
             Throwable cause = future.getCause();
             if (cause != null) {
                 throw cause;
@@ -109,7 +130,7 @@ final class NettyChannel extends AbstractChannel {
         } catch (Throwable e) {
             throw new RemotingException(this, "Failed to send message " + message + " to " + getRemoteAddress() + ", cause: " + e.getMessage(), e);
         }
-
+        // 发送失败，抛出异常
         if (!success) {
             throw new RemotingException(this, "Failed to send message " + message + " to " + getRemoteAddress()
                     + "in timeout(" + timeout + "ms) limit");
@@ -118,21 +139,25 @@ final class NettyChannel extends AbstractChannel {
 
     @Override
     public void close() {
+        // 标记关闭
         try {
             super.close();
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
+        // 移除连接
         try {
             removeChannelIfDisconnected(channel);
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
+        // 清空属性 attributes
         try {
             attributes.clear();
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
+        // 关闭真正的通道 channel
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("Close netty channel " + channel);
