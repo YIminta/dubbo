@@ -45,7 +45,9 @@ public abstract class AbstractProtocol implements Protocol {
      *      不同协议会不同
      */
     protected final Map<String, Exporter<?>> exporterMap = new ConcurrentHashMap<String, Exporter<?>>();
-
+    /**
+     * Invoker 集合
+     */
     //TODO SOFEREFENCE
     protected final Set<Invoker<?>> invokers = new ConcurrentHashSet<Invoker<?>>();
 
