@@ -32,7 +32,9 @@ import java.net.URL;
  * HttpClientConnectionFactory
  */
 public class HttpClientConnectionFactory implements HessianConnectionFactory {
-
+    /**
+     * Apache HttpClient
+     */
     private HttpClient httpClient;
 
     @Override
@@ -46,7 +48,7 @@ public class HttpClientConnectionFactory implements HessianConnectionFactory {
 
     @Override
     public HessianConnection open(URL url) throws IOException {
-        HttpClientConnection httpClientConnection = new HttpClientConnection(httpClient, url);
+        HttpClientConnection httpClientConnection = new HttpClientConnection(httpClient, url);// HttpClientConnection
         RpcContext context = RpcContext.getContext();
         for (String key : context.getAttachments().keySet()) {
             httpClientConnection.addHeader(Constants.DEFAULT_EXCHANGER + key, context.getAttachment(key));
