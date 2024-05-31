@@ -40,7 +40,13 @@ public class DubboHttpServer extends BaseRestServer {
 
     private final HttpServletDispatcher dispatcher = new HttpServletDispatcher();
     private final ResteasyDeployment deployment = new ResteasyDeployment();
+    /**
+     * Dubbo HttpBinder$Adaptive
+     */
     private HttpBinder httpBinder;
+    /**
+     * HttpServer 对象
+     */
     private HttpServer httpServer;
 //    private boolean isExternalServer;
 
@@ -50,9 +56,10 @@ public class DubboHttpServer extends BaseRestServer {
 
     @Override
     protected void doStart(URL url) {
+        // 创建 HttpServer 对象，使用 RestHandler 作为处理器。
         // TODO jetty will by default enable keepAlive so the xml config has no effect now
         httpServer = httpBinder.bind(url, new RestHandler());
-
+        // 获得 ServletContext 对象
         ServletContext servletContext = ServletManager.getInstance().getServletContext(url.getPort());
         if (servletContext == null) {
             servletContext = ServletManager.getInstance().getServletContext(ServletManager.EXTERNAL_SERVER_PORT);
@@ -61,9 +68,9 @@ public class DubboHttpServer extends BaseRestServer {
             throw new RpcException("No servlet context found. If you are using server='servlet', " +
                     "make sure that you've configured " + BootstrapListener.class.getName() + " in web.xml");
         }
-
+        // 设置 ResteasyDeployment
         servletContext.setAttribute(ResteasyDeployment.class.getName(), deployment);
-
+        // 初始化 Resteasy HttpServletDispatcher
         try {
             dispatcher.init(new SimpleServletConfig(servletContext));
         } catch (ServletException e) {
@@ -85,7 +92,9 @@ public class DubboHttpServer extends BaseRestServer {
 
         @Override
         public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            // 设置
             RpcContext.getContext().setRemoteAddress(request.getRemoteAddr(), request.getRemotePort());
+            // 调度请求
             dispatcher.service(request, response);
         }
     }

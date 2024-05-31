@@ -29,9 +29,11 @@ public class RpcExceptionMapper implements ExceptionMapper<RpcException> {
     @Override
     public Response toResponse(RpcException e) {
         // TODO do more sophisticated exception handling and output
+        // 参数不合法，拼接返回 Response
         if (e.getCause() instanceof ConstraintViolationException) {
             return handleConstraintViolationException((ConstraintViolationException) e.getCause());
         }
+        // 普通 Response 返回
         // we may want to avoid exposing the dubbo exception details to certain clients
         // TODO for now just do plain text output
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Internal server error: " + e.getMessage()).type(ContentType.TEXT_PLAIN_UTF_8).build();
