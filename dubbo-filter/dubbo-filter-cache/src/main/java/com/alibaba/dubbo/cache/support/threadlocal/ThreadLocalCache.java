@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class ThreadLocalCache implements Cache {
 
-    private final ThreadLocal<Map<Object, Object>> store;
+    private final ThreadLocal<Map<Object, Object>> store;// 线程变量
 
     public ThreadLocalCache(URL url) {
         this.store = new ThreadLocal<Map<Object, Object>>() {

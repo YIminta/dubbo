@@ -36,12 +36,16 @@ import java.util.Set;
 public class DeprecatedFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeprecatedFilter.class);
-
+    /**
+     * 已经打印日志的方法集合
+     */
     private static final Set<String> logged = new ConcurrentHashSet<String>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // 获得方法名
         String key = invoker.getInterface().getName() + "." + invocation.getMethodName();
+        // 打印告警日志
         if (!logged.contains(key)) {
             logged.add(key);
             if (invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.DEPRECATED_KEY, false)) {

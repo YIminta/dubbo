@@ -29,21 +29,32 @@ import java.util.concurrent.ConcurrentMap;
  * AbstractCacheFactory
  */
 public abstract class AbstractCacheFactory implements CacheFactory {
-
+    /**
+     * Cache 集合
+     *
+     * key：URL
+     */
     private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap<String, Cache>();
 
     @Override
     public Cache getCache(URL url, Invocation invocation) {
         url = url.addParameter(Constants.METHOD_KEY, invocation.getMethodName());
+        // 获得 Cache 对象
         String key = url.toFullString();
         Cache cache = caches.get(key);
+        // 不存在，创建 Cache 对象，并缓存
         if (cache == null) {
             caches.put(key, createCache(url));
             cache = caches.get(key);
         }
         return cache;
     }
-
+    /**
+     * 创建 Cache 对象
+     *
+     * @param url URL
+     * @return Cache 对象
+     */
     protected abstract Cache createCache(URL url);
 
 }

@@ -26,11 +26,15 @@ import java.util.Map;
  * LruCache
  */
 public class LruCache implements Cache {
-
+    /**
+     * 缓存集合
+     */
     private final Map<Object, Object> store;
 
     public LruCache(URL url) {
+        // `"cache.size"` 配置项，设置缓存大小
         final int max = url.getParameter("cache.size", 1000);
+        // 创建 LRUCache 对象
         this.store = new LRUCache<Object, Object>(max);
     }
 
