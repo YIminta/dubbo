@@ -42,13 +42,23 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
 
     // logger
     private static final Logger logger = LoggerFactory.getLogger(AbstractDirectory.class);
-
+    /**
+     * 是否已经销毁
+     */
     private final URL url;
-
+    /**
+     * 注册中心 URL
+     */
     private volatile boolean destroyed = false;
-
+    /**
+     * 消费者 URL
+     *
+     * 若未显示调用 {@link #AbstractDirectory(URL, URL, List)} 构造方法，consumerUrl 等于 {@link #url}
+     */
     private volatile URL consumerUrl;
-
+    /**
+     * Router 数组
+     */
     private volatile List<Router> routers;
 
     public AbstractDirectory(URL url) {
@@ -64,6 +74,7 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
             throw new IllegalArgumentException("url == null");
         this.url = url;
         this.consumerUrl = consumerUrl;
+        // 设置 Router 数组
         setRouters(routers);
     }
 
@@ -72,8 +83,10 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
         if (destroyed) {
             throw new RpcException("Directory already destroyed .url: " + getUrl());
         }
+        // 获得所有 Invoker 集合
         List<Invoker<T>> invokers = doList(invocation);
-        List<Router> localRouters = this.routers; // local reference
+        // 根据路由规则，筛选 Invoker 集合
+        List<Router> localRouters = this.routers; // local reference 本地引用，避免并发问题
         if (localRouters != null && !localRouters.isEmpty()) {
             for (Router router : localRouters) {
                 try {
