@@ -27,8 +27,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class KryoObjectOutput implements ObjectOutput, Cleanable {
-
+    /**
+     * Kryo 输出
+     */
     private Output output;
+    /**
+     * Kryo 对象
+     */
     private Kryo kryo;
 
     public KryoObjectOutput(OutputStream outputStream) {
@@ -109,7 +114,9 @@ public class KryoObjectOutput implements ObjectOutput, Cleanable {
 
     @Override
     public void cleanup() {
+        // 释放 Kryo 对象
         KryoUtils.release(kryo);
+        // 清空
         kryo = null;
     }
 }

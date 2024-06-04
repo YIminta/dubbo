@@ -43,13 +43,14 @@ public class CompatibleKryo extends Kryo {
          * default to the default serializer.
          * It is the responsibility of kryo to handle with every standard jdk classes, so we will just escape these classes.
          */
+        // 空构造方法时，使用 JavaSerializer ，Java 原生序列化实现
         if (!ReflectionUtils.isJdk(type) && !type.isArray() && !type.isEnum() && !ReflectionUtils.checkZeroArgConstructor(type)) {
             if (logger.isWarnEnabled()) {
                 logger.warn(type + " has no zero-arg constructor and this will affect the serialization performance");
             }
             return new JavaSerializer();
         }
-
+        // 使用 Kryo 默认序列化实现
         return super.getDefaultSerializer(type);
     }
 }

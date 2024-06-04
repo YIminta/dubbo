@@ -29,8 +29,13 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 
 public class KryoObjectInput implements ObjectInput, Cleanable {
-
+    /**
+     * Kryo 对象
+     */
     private Kryo kryo;
+    /**
+     * Kryo 输入
+     */
     private Input input;
 
     public KryoObjectInput(InputStream inputStream) {
@@ -153,7 +158,9 @@ public class KryoObjectInput implements ObjectInput, Cleanable {
 
     @Override
     public void cleanup() {
+        // 释放 Kryo 对象
         KryoUtils.release(kryo);
+        // 清空
         kryo = null;
     }
 }
