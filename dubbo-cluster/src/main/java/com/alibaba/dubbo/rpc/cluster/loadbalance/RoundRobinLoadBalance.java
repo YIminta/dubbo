@@ -65,6 +65,10 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
         }
     }
 
+    /**
+     * 服务方法与计数器的映射
+     * KEY：serviceKey + "." + methodName
+     */
     private ConcurrentMap<String, ConcurrentMap<String, WeightedRoundRobin>> methodWeightMap = new ConcurrentHashMap<String, ConcurrentMap<String, WeightedRoundRobin>>();
     private AtomicBoolean updateLock = new AtomicBoolean();
     
