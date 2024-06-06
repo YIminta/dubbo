@@ -54,11 +54,17 @@ public class ScriptRouter extends AbstractRouter {
     private static final Logger logger = LoggerFactory.getLogger(ScriptRouter.class);
 
     private static final int DEFAULT_PRIORITY = 1;
-
+    /**
+     * 脚本类型 与 ScriptEngine 的映射缓存
+     */
     private static final Map<String, ScriptEngine> engines = new ConcurrentHashMap<String, ScriptEngine>();
-
+    /**
+     * 脚本引擎
+     */
     private final ScriptEngine engine;
-
+    /**
+     * 路由规则内容
+     */
     private final String rule;
 
     private CompiledScript function;
@@ -77,7 +83,7 @@ public class ScriptRouter extends AbstractRouter {
     public ScriptRouter(URL url) {
         this.url = url;
         this.priority = url.getParameter(Constants.PRIORITY_KEY, DEFAULT_PRIORITY);
-
+        // 初始化 `engine`
         this.engine = getEngine(url);
         this.rule = getRule(url);
 
@@ -107,7 +113,7 @@ public class ScriptRouter extends AbstractRouter {
     private ScriptEngine getEngine(URL url) {
         String type = url.getParameter(Constants.TYPE_KEY, Constants.DEFAULT_SCRIPT_TYPE_KEY);
         ScriptEngine engine = engines.get(type);
-        if (engine == null) {
+        if (engine == null) {// 在缓存中不存在，则进行创建 ScriptEngine 对象
             engine = new ScriptEngineManager().getEngineByName(type);
             if (engine == null) {
                 throw new IllegalStateException(new IllegalStateException("Unsupported route rule type: " + type + ", rule: " + rule));
@@ -130,8 +136,10 @@ public class ScriptRouter extends AbstractRouter {
             @Override
             public Object run() {
                 try {
+                    // 执行脚本
                     return function.eval(bindings);
                 } catch (ScriptException e) {
+                    // 发生异常，忽略路由规则，返回全 `invokers` 集合
                     logger.error("route error, rule has been ignored. rule: " + rule + ", method:" +
                             invocation.getMethodName() + ", url: " + RpcContext.getContext().getUrl(), e);
                     return invokers;

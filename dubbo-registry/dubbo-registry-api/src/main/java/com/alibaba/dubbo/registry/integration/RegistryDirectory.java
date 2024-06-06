@@ -417,15 +417,19 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
         if (urls != null && !urls.isEmpty()) {
             for (URL url : urls) {
+                // 忽略，若是 "empty://" 。一般情况下，所有路由规则被删除时，有且仅有一条协议为 "empty://" 的路由规则 URL
                 if (Constants.EMPTY_PROTOCOL.equals(url.getProtocol())) {
                     continue;
                 }
+                // 获得 "router"
                 String routerType = url.getParameter(Constants.ROUTER_KEY);
                 if (routerType != null && routerType.length() > 0) {
                     url = url.setProtocol(routerType);
                 }
                 try {
+                    // 创建 Router 对象
                     Router router = routerFactory.getRouter(url);
+                    // 添加到返回结果
                     if (!routers.contains(router))
                         routers.add(router);
                 } catch (Throwable t) {

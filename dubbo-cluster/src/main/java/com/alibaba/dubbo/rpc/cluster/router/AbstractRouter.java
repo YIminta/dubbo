@@ -20,8 +20,13 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.cluster.Router;
 
 public abstract class AbstractRouter implements Router {
-
+    /**
+     * 路由规则 URL
+     */
     protected URL url;
+    /**
+     * 路由规则的优先级，用于排序，优先级越大越靠前执行，可不填，缺省为 0 。
+     */
     protected int priority;
 
     @Override
