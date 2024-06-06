@@ -330,14 +330,16 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      * @param interfaceClass 接口类
      */
     void checkMock(Class<?> interfaceClass) {
+        // mock 配置校验
         if (ConfigUtils.isEmpty(mock)) {
             return;
         }
 
         String normalizedMock = MockInvoker.normalizeMock(mock);
-        if (normalizedMock.startsWith(Constants.RETURN_PREFIX)) {
+        if (normalizedMock.startsWith(Constants.RETURN_PREFIX)) {// 处理 "return " 开头的情况
             normalizedMock = normalizedMock.substring(Constants.RETURN_PREFIX.length()).trim();
             try {
+                // 校验 Mock 值，配置正确
                 MockInvoker.parseMockValue(normalizedMock);
             } catch (Exception e) {
                 throw new IllegalStateException("Illegal mock return in <dubbo:service/reference ... " +
