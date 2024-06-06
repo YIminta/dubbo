@@ -133,6 +133,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     public void destroy() {
+        //  销毁协议对应的服务消费者的所有 Invoker
         // in order to avoid closing a client multiple times, a counter is used in case of connection per jvm, every
         // time when client.close() is called, counter counts down once, and when counter reaches zero, client will be
         // closed.

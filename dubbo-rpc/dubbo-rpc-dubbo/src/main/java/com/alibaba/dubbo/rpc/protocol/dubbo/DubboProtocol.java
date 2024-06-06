@@ -483,6 +483,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     @Override
     public void destroy() {
+        // 销毁所有 ExchangeServer
         for (String key : new ArrayList<String>(serverMap.keySet())) {
             ExchangeServer server = serverMap.remove(key);
             if (server != null) {
@@ -499,7 +500,7 @@ public class DubboProtocol extends AbstractProtocol {
         // put here to reduce the chance of accepting new invocation after client closed.
         // close invoker and then client.
         super.destroy();
-
+        // 销毁所有 ExchangeClient
         for (String key : new ArrayList<String>(referenceClientMap.keySet())) {
             ExchangeClient client = referenceClientMap.remove(key);
             if (client != null) {
@@ -513,7 +514,7 @@ public class DubboProtocol extends AbstractProtocol {
                 }
             }
         }
-
+        // 销毁所有幽灵 ExchangeClient
         for (String key : new ArrayList<String>(ghostClientMap.keySet())) {
             ExchangeClient client = ghostClientMap.remove(key);
             if (client != null) {
